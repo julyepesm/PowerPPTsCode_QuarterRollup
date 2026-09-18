@@ -1747,6 +1747,27 @@ BUICK_GMC_ROLLUP_MARKET_CODES = [
 ]
 
 
+def resolve_rollup_market_rows(catalog, brand_col, code_col):
+    """Return catalog rows grouped by the requested Buick/GMC market codes."""
+    matches = []
+    for brand in ("Buick", "GMC"):
+        brand_rows = catalog[
+            catalog[brand_col].astype(str).str.strip().str.lower() == brand.lower()
+        ].copy()
+        brand_rows["_MarketCodeClean"] = brand_rows[code_col].map(
+            lambda value: str(value).strip().upper()
+        )
+
+        for requested_code in BUICK_GMC_ROLLUP_MARKET_CODES:
+            market_rows = brand_rows[
+                (brand_rows["_MarketCodeClean"] == requested_code) |
+                brand_rows["_MarketCodeClean"].str.startswith(f"{requested_code}-")
+            ]
+            if not market_rows.empty:
+                matches.append((brand, requested_code, market_rows.drop(columns=["_MarketCodeClean"])))
+    return matches
+
+
 def process_buick_gmc_quarter_rollup(start_month_year="2026-06-01",
                                      end_month_year="2026-08-01",
                                      output_folder="Generated_Slides",
@@ -1811,22 +1832,9 @@ def process_buick_gmc_quarter_rollup(start_month_year="2026-06-01",
     client_col = column_aliases["Client"]
     details = []
 
-    for brand in ("Buick", "GMC"):
-        brand_rows = catalog[
-            catalog[brand_col].astype(str).str.strip().str.lower() == brand.lower()
-        ].copy()
-        brand_rows["_MarketCodeClean"] = brand_rows[code_col].map(
-            lambda value: str(value).strip().upper()
-        )
-
-        for requested_code in BUICK_GMC_ROLLUP_MARKET_CODES:
-            market_rows = brand_rows[
-                (brand_rows["_MarketCodeClean"] == requested_code) |
-                brand_rows["_MarketCodeClean"].str.startswith(f"{requested_code}-")
-            ]
-            if market_rows.empty:
-                continue
-
+    for brand, requested_code, market_rows in resolve_rollup_market_rows(
+        catalog, brand_col, code_col
+    ):
             row = market_rows.iloc[0]
             market_codes = [
                 str(value).strip() for value in market_rows[code_col].dropna().unique()
@@ -1877,6 +1885,49 @@ def process_buick_gmc_quarter_rollup(start_month_year="2026-06-01",
         "details": details,
         "output_folder": batch_output_dir
     }
+
+
+def diagnose_buick_gmc_rollup_catalog():
+    """Print the live Power BI catalog values used by the rollup matcher."""
+    generator = SlideGenerationOrchestrator()
+    if not generator.authenticate():
+        return False
+
+    query = """
+    EVALUATE
+    SELECTCOLUMNS(
+        SUMMARIZECOLUMNS(
+            'PoP Master Table'[Brand (Reporting)],
+            'PoP Master Table'[Market Code],
+            'PoP Master Table'[Market Name],
+            'PoP Master Table'[Client Code]
+        ),
+        "Brand", 'PoP Master Table'[Brand (Reporting)],
+        "MarketCode", 'PoP Master Table'[Market Code],
+        "MarketName", 'PoP Master Table'[Market Name],
+        "ClientCode", 'PoP Master Table'[Client Code]
+    )
+    """
+    catalog = generator.powerbi.execute_dax_query(query)
+    if catalog is None or catalog.empty:
+        print("LIVE CATALOG: empty")
+        return False
+
+    print(f"LIVE CATALOG ROWS: {len(catalog)}")
+    print(f"LIVE CATALOG COLUMNS: {list(catalog.columns)}")
+    print("LIVE BRANDS:")
+    print(catalog.iloc[:, 0].astype(str).value_counts().head(20).to_string())
+    print("LIVE SAMPLE ROWS:")
+    print(catalog.head(20).to_string(index=False))
+    brand_col = generator._find_column(catalog, "Brand")
+    code_col = generator._find_column(catalog, "MarketCode")
+    if brand_col and code_col:
+        matches = resolve_rollup_market_rows(catalog, brand_col, code_col)
+        print(f"LIVE ROLLUP MATCHES: {len(matches)} of 22")
+        for brand, requested_code, rows in matches:
+            actual_codes = rows[code_col].dropna().astype(str).unique().tolist()
+            print(f"  {brand} {requested_code}: {actual_codes}")
+    return True
 
 def process_batch_generation(target_date_iso, sel_brand, sel_type, codes_data, summary_only, flatten_slides=False,
                              is_ytd=True, ytd_min_outcomes=100, ytd_min_impressions=1000,
@@ -2005,12 +2056,16 @@ if __name__ == "__main__":
     parser.add_argument("--type", type=str, default="LMA", help="Zone/LMA type")
     parser.add_argument("--all", action="store_true", help="Process all markets for selected brands")
     parser.add_argument("--quarter-rollup", action="store_true", help="Generate the 11-market Buick/GMC June-August 2026 rollup")
+    parser.add_argument("--diagnose-rollup-catalog", action="store_true", help="Print live Power BI catalog columns and sample rows")
     
     args = parser.parse_args()
     
     print("="*70)
     print("PowerBI Slide Generator - Refactored Modular Version (w/ argparse)")
     print("="*70)
+
+    if args.diagnose_rollup_catalog:
+        raise SystemExit(0 if diagnose_buick_gmc_rollup_catalog() else 1)
 
     if args.quarter_rollup:
         rollup_result = process_buick_gmc_quarter_rollup()

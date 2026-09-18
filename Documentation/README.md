@@ -61,6 +61,15 @@ The equivalent non-UI command is:
 python Scripts/main_slide_generator.py --quarter-rollup
 ```
 
+To inspect the live Power BI catalog before generating decks, run:
+
+```bash
+python Scripts/main_slide_generator.py --diagnose-rollup-catalog
+```
+
+This prints the returned columns, sample rows, and the number of Buick/GMC
+market-code matches found by the rollup matcher.
+
 This generates one Executive Summary rollup per market for Buick and GMC,
 covering June through August 2026. Tactics active in any month of the period
 are included, followed by the three-month YTD KBA and impressions slides.
