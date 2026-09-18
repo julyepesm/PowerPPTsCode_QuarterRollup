@@ -1,5 +1,8 @@
 # 📊 PowerPPTs: GM Automation Tool
 
+For the current rollup requirements, all changes, setup, tests, and remaining
+work, start with [CURRENT_HANDOFF.md](CURRENT_HANDOFF.md).
+
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 
