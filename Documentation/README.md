@@ -1,5 +1,8 @@
 # 📊 PowerPPTs: GM Automation Tool
 
+For the current rollup requirements, all changes, setup, tests, and remaining
+work, start with [CURRENT_HANDOFF.md](CURRENT_HANDOFF.md).
+
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 
@@ -54,7 +57,7 @@ python -m streamlit run Scripts/rollup_ui.py
 Alternatively, run `Button_Rollup.bat` from Windows. Keep the terminal window
 open while using the UI. In the dedicated screen,
 leave the dates as June 1, 2026 through August 1, 2026 and click
-**GENERATE 22 ROLLUP DECKS**.
+**GENERATE 23 ROLLUP DECKS**.
 
 On the first run, Power BI authentication uses device code flow. Copy the code
 shown in the Streamlit terminal, open `https://microsoft.com/devicelogin`,
@@ -77,7 +80,16 @@ market-code matches found by the rollup matcher.
 
 This generates one Executive Summary rollup per market for Buick and GMC,
 covering June through August 2026. Tactics active in any month of the period
-are included, followed by the three-month YTD KBA and impressions slides.
+are included, followed by January-through-August 2026 YTD KBA and impressions slides.
+
+The requested X codes are Power BI **Client Codes**, not DMA Market Codes.
+The rollup filters each brand/client across all its market names, including both
+Tallahassee and Panama City for Buick XTPC. GMC XTPC is split into
+separate XTPC-PANFL and XTPC-TALFL reports using both Client Code and Market
+Code filters for all summary and YTD queries. Expected output: 23 decks
+(11 Buick and 12 GMC). Missing pairs and failed decks are listed
+in `rollup_results.csv` and `rollup_results.json` in the generated batch folder.
+On this workstation, `Button_Rollup.bat` uses the local `.venv` when available.
 
 ---
 
