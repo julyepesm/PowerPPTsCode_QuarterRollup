@@ -1,11 +1,14 @@
 class DataQueries:
     """Handles all DAX queries for Power BI data retrieval"""
 
-    def _build_common_filters_list(self, brand, market_name, month_year=None, tactic=None, site=None, audience=None, zone_lma=None, strategy=None, client_code=None, market_code=None, strict=False, start_month_year=None, end_month_year=None):
+    def _build_common_filters_list(self, brand, market_name, month_year=None, tactic=None, site=None, audience=None, zone_lma=None, strategy=None, client_code=None, market_code=None, strict=False, start_month_year=None, end_month_year=None, region=None):
         """Helper to build list of DAX filter strings for CALCULATETABLE"""
         
         # 1. Primary Filters (Market and Brand)
         filters = [f"'PoP Master Table'[Brand (Reporting)] = \"{brand}\""]
+        if region is not None:
+            escaped_region = str(region).replace('"', '""')
+            filters.append(f'COALESCE(\'PoP Master Table\'[Region], "") = "{escaped_region}"')
         
         # PRIORITIZE MARKET CODE: If we have a code, use it. Match against Name only as secondary/relaxed if no code.
         # This solves the "multiple names for same code" issue.
@@ -99,13 +102,13 @@ class DataQueries:
         """
         return query
     
-    def get_tactic_site_combinations_query(self, brand, market_name, month_year=None, zone_lma=None, client_code=None, market_code=None, strict=False, start_month_year=None, end_month_year=None):
+    def get_tactic_site_combinations_query(self, brand, market_name, month_year=None, zone_lma=None, client_code=None, market_code=None, strict=False, start_month_year=None, end_month_year=None, region=None):
         """Get all tactic and site combinations for a specific brand/market/month"""
         filters = self._build_common_filters_list(
             brand, market_name, month_year=month_year, 
             zone_lma=zone_lma, client_code=client_code,
             market_code=market_code, strict=strict,
-            start_month_year=start_month_year, end_month_year=end_month_year
+            start_month_year=start_month_year, end_month_year=end_month_year, region=region
         )
         filter_str = ", ".join(filters)
         
@@ -341,13 +344,13 @@ class DataQueries:
         """
         return query
 
-    def get_executive_summary_query(self, brand, market_name, month_year=None, zone_lma=None, client_code=None, market_code=None, strict=False, start_month_year=None, end_month_year=None):
+    def get_executive_summary_query(self, brand, market_name, month_year=None, zone_lma=None, client_code=None, market_code=None, strict=False, start_month_year=None, end_month_year=None, region=None):
         """Build query for executive summary using CALCULATETABLE"""
         filters = self._build_common_filters_list(
             brand, market_name, month_year=month_year,
             zone_lma=zone_lma, client_code=client_code,
             market_code=market_code, strict=strict,
-            start_month_year=start_month_year, end_month_year=end_month_year
+            start_month_year=start_month_year, end_month_year=end_month_year, region=region
         )
             
         filter_str = ", ".join(filters)
@@ -378,7 +381,7 @@ class DataQueries:
         """
         return query
 
-    def get_ytd_impressions_by_vehicle_query(self, brand, market_name, month_year, zone_lma=None, client_code=None, market_code=None, strict=False, months=None):
+    def get_ytd_impressions_by_vehicle_query(self, brand, market_name, month_year, zone_lma=None, client_code=None, market_code=None, strict=False, months=None, region=None):
         """
         Get YTD impressions data grouped by vehicle and month
         Uses a 6-month rolling window to match Cadillac reporting standards.
@@ -388,7 +391,7 @@ class DataQueries:
         filters = self._build_common_filters_list(
             brand, market_name,
             zone_lma=zone_lma, client_code=client_code,
-            market_code=market_code, strict=strict
+            market_code=market_code, strict=strict, region=region
         )
 
         filters = [f for f in filters if "'Master Date Table'[Month Year]" not in f]
@@ -417,7 +420,7 @@ class DataQueries:
         """
         return query
 
-    def get_ytd_kba_by_tactic_query(self, brand, market_name, month_year, zone_lma=None, client_code=None, market_code=None, strict=False, months=None):
+    def get_ytd_kba_by_tactic_query(self, brand, market_name, month_year, zone_lma=None, client_code=None, market_code=None, strict=False, months=None, region=None):
         """
         Get YTD KBA (Total Conversions) data grouped by tactic and month
         Uses a 6-month rolling window to match Cadillac reporting standards.
@@ -427,7 +430,7 @@ class DataQueries:
         filters = self._build_common_filters_list(
             brand, market_name,
             zone_lma=zone_lma, client_code=client_code,
-            market_code=market_code, strict=strict
+            market_code=market_code, strict=strict, region=region
         )
         filters = [f for f in filters if "'Master Date Table'[Month Year]" not in f]
 

@@ -45,51 +45,36 @@ python -m streamlit run Scripts/app_ui.py
 
 Open your browser at [http://localhost:8501](http://localhost:8501).
 
-### 4. Buick/GMC June-August 2026 Rollup
+### 4. Reusable Executive Summary rollup
 
-The rollup has its own interface. Do not select a monthly Brand, Tier Type, or
-market in the regular app. Start it from the repository root with:
+Run `Button_Rollup.bat` and open `http://localhost:8502`, or run:
 
-```bash
-python -m streamlit run Scripts/rollup_ui.py
+```powershell
+.\.venv\Scripts\python.exe -m streamlit run Scripts/rollup_ui.py
 ```
 
-Alternatively, run `Button_Rollup.bat` from Windows. Keep the terminal window
-open while using the UI. In the dedicated screen,
-leave the dates as June 1, 2026 through August 1, 2026 and click
-**GENERATE 23 ROLLUP DECKS**.
+1. Choose **Month range** or **Quarter** (Q1-Q4 plus year).
+2. Choose **Brand** (Buick, GMC, Cadillac, or Chevrolet) and **Tier** (LMA/ZONE).
+3. Click **Load markets**. Complete Microsoft device-code sign-in using the
+   link and code shown on the page if prompted.
+4. Choose a **Region**, or **All regions**.
+5. Select specific **Markets**, or click **Select all**. Click **Generate rollup decks**.
 
-On the first run, Power BI authentication uses device code flow. Copy the code
-shown in the Streamlit terminal, open `https://microsoft.com/devicelogin`,
-complete the Microsoft login, and return to the rollup screen.
+Executive Summaries cover the selected months. YTD slides always start in
+January of the selected end year and run through the end month. Market discovery
+covers the whole selected period, including activity in its first month only.
+Changing the dates, brand, or tier requires loading the matching catalog again.
 
-The equivalent non-UI command is:
+Buick XTPC stays combined. GMC XTPC-PANFL and XTPC-TALFL remain separate.
+The UI lists available market scopes for the selected period, so its deck count
+is determined by the markets you choose rather than a fixed 23-deck target.
 
-```bash
-python Scripts/main_slide_generator.py --quarter-rollup
+See [REUSABLE_ROLLUP.md](REUSABLE_ROLLUP.md) for scope rules, logs, and testing.
+The original fixed June-August 23-scope batch is still available separately:
+
+```powershell
+.\.venv\Scripts\python.exe Scripts/main_slide_generator.py --quarter-rollup
 ```
-
-To inspect the live Power BI catalog before generating decks, run:
-
-```bash
-python Scripts/main_slide_generator.py --diagnose-rollup-catalog
-```
-
-This prints the returned columns, sample rows, and the number of Buick/GMC
-market-code matches found by the rollup matcher.
-
-This generates one Executive Summary rollup per market for Buick and GMC,
-covering June through August 2026. Tactics active in any month of the period
-are included, followed by January-through-August 2026 YTD KBA and impressions slides.
-
-The requested X codes are Power BI **Client Codes**, not DMA Market Codes.
-The rollup filters each brand/client across all its market names, including both
-Tallahassee and Panama City for Buick XTPC. GMC XTPC is split into
-separate XTPC-PANFL and XTPC-TALFL reports using both Client Code and Market
-Code filters for all summary and YTD queries. Expected output: 23 decks
-(11 Buick and 12 GMC). Missing pairs and failed decks are listed
-in `rollup_results.csv` and `rollup_results.json` in the generated batch folder.
-On this workstation, `Button_Rollup.bat` uses the local `.venv` when available.
 
 ---
 

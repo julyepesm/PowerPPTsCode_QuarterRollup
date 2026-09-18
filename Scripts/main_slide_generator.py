@@ -359,10 +359,12 @@ class SlideGenerationOrchestrator:
                                            output_folder="Generated_Slides",
                                            flatten_slides=None, client_code=None,
                                            market_code=None, display_market_name=None,
-                                           file_prefix=None):
+                                           file_prefix=None, region=None, compact_output=False, filename_stem=None):
         """Generate a period Executive Summary and January-through-end-month YTD slides."""
         do_flatten = flatten_slides if flatten_slides is not None else self.flatten_slides
         market_display_name = display_market_name or market_name
+        from rollup_builder import normalize_period, period_label, safe_filename
+        start_month_year, end_month_year = normalize_period(start_month_year, end_month_year)
 
         if not self.authenticate():
             print("Authentication failed")
@@ -372,7 +374,7 @@ class SlideGenerationOrchestrator:
         combinations = self._get_tactic_combinations(
             brand, market_name, zone_lma=zone_lma_type,
             client_code=client_code, market_code=market_code, strict=True,
-            start_month_year=start_month_year, end_month_year=end_month_year
+            start_month_year=start_month_year, end_month_year=end_month_year, region=region
         )
         if combinations.empty:
             print(f"  [WARN] No tactics found in rollup period for {brand} - {market_name} ({market_code})")
@@ -381,31 +383,30 @@ class SlideGenerationOrchestrator:
         if not zone_lma_type:
             zone_lma_type = self._get_zone_lma_from_combinations(combinations)
 
-        start_date = datetime.fromisoformat(start_month_year.split("T")[0])
         end_date = datetime.fromisoformat(end_month_year.split("T")[0])
-        period_label = f"{start_date.strftime('%B')}-{end_date.strftime('%B %Y')}"
+        report_period = period_label(start_month_year, end_month_year)
         end_formatted, year, month, day = self._parse_month_year(end_month_year)
 
         prs, slides_created = self._add_title_slide(
-            brand, market_display_name, period_label, zone_lma_type, None, 0
+            brand, market_display_name, report_period, zone_lma_type, None, 0
         )
         if prs is None or slides_created != 1:
             raise RuntimeError("Rollup cover could not be created")
         prs, slides_created = self._add_executive_summary_slide(
-            brand, market_name, end_month_year, period_label, year, month, day,
+            brand, market_name, end_month_year, report_period, year, month, day,
             zone_lma_type, prs, slides_created, client_code=client_code,
             display_market_name=market_display_name, market_code=market_code,
             strict=True, start_month_year=start_month_year,
-            end_month_year=end_month_year
+            end_month_year=end_month_year, region=region
         )
         if slides_created <= 1:
             raise RuntimeError("Rollup Executive Summary could not be created")
         before_ytd = slides_created
         prs, slides_created = self._add_ytd_chart_slides(
-            brand, market_name, end_month_year, f"January-{end_date.strftime('%B %Y')}", year, month, day,
+            brand, market_name, end_month_year, period_label(f"{end_date.year}-01-01", end_month_year), year, month, day,
             zone_lma_type, prs, slides_created, client_code=client_code,
             display_market_name=market_display_name, market_code=market_code,
-            strict=True, rolling_months=None, apply_filters=False
+            strict=True, rolling_months=None, apply_filters=False, region=region
         )
         if slides_created != before_ytd + 2:
             raise RuntimeError("Rollup requires both KBA and impressions total slides")
@@ -419,9 +420,9 @@ class SlideGenerationOrchestrator:
 
         filepath = self._save_complete_deck(
             prs, brand, market_name, end_month_year, zone_lma_type,
-            market_code, "Unknown", output_folder, True,
+            market_code, safe_filename(region) if region is not None else "Unknown", output_folder, True,
             flatten_slides=do_flatten, client_code=client_code,
-            file_prefix=file_prefix
+            file_prefix=file_prefix, compact_output=compact_output, filename_stem=filename_stem
         )
         return {
             'filepath': filepath,
@@ -489,12 +490,12 @@ class SlideGenerationOrchestrator:
             
         return False
 
-    def _get_tactic_combinations(self, brand, market_name, month_year=None, zone_lma=None, client_code=None, market_code=None, strict=False, start_month_year=None, end_month_year=None):
+    def _get_tactic_combinations(self, brand, market_name, month_year=None, zone_lma=None, client_code=None, market_code=None, strict=False, start_month_year=None, end_month_year=None, region=None):
         """Get all tactic and site combinations for the report"""
         query = self.data_queries.get_tactic_site_combinations_query(
             brand, market_name, month_year, zone_lma=zone_lma, client_code=client_code,
             market_code=market_code, strict=strict,
-            start_month_year=start_month_year, end_month_year=end_month_year
+            start_month_year=start_month_year, end_month_year=end_month_year, region=region
         )
         # Note: Discovery usually stays fuzzy or uses brand/market. 
         # But if market_code is provided, we can use it.
@@ -607,7 +608,7 @@ class SlideGenerationOrchestrator:
                                     zone_lma_type, prs, slides_created,
                                     client_code=None, display_market_name=None,
                                     market_code=None, strict=False,
-                                    start_month_year=None, end_month_year=None):
+                                    start_month_year=None, end_month_year=None, region=None):
         """Add executive summary slide to presentation"""
         market_display_name = display_market_name if display_market_name else market_name
         try:
@@ -625,7 +626,7 @@ class SlideGenerationOrchestrator:
             exec_query = self.data_queries.get_executive_summary_query(
                 brand, market_name, month_year, zone_lma=zone_lma_type, client_code=client_code,
                 market_code=market_code, strict=strict,
-                start_month_year=start_month_year, end_month_year=end_month_year
+                start_month_year=start_month_year, end_month_year=end_month_year, region=region
             )
             
             df_exec_raw = self.powerbi.execute_dax_query(exec_query)
@@ -690,7 +691,7 @@ class SlideGenerationOrchestrator:
                     print(f"  [DEBUG] Renaming Exec Summary columns: {final_rename_map}")
                     df_exec_raw = df_exec_raw.rename(columns=final_rename_map)
 
-                if start_month_year and end_month_year and client_code and not market_name:
+                if start_month_year and end_month_year and (client_code or market_code) and not market_name:
                     # The rollup query is already scoped to a brand/client. A client
                     # can span multiple DMA names (XTPC); retain every returned row.
                     df_exec_raw['Market'] = market_display_name
@@ -1155,7 +1156,7 @@ class SlideGenerationOrchestrator:
     def _add_ytd_chart_slides(self, brand, market_name, month_year, formatted_month_year,
                              year, month, day, zone_lma_type, prs, slides_created,
                              client_code=None, display_market_name=None,
-                             market_code=None, strict=False, rolling_months=None, apply_filters=True):
+                             market_code=None, strict=False, rolling_months=None, apply_filters=True, region=None):
         """Add YTD chart slides (KBA and Impressions)"""
         market_display_name = display_market_name if display_market_name else market_name
         
@@ -1163,7 +1164,7 @@ class SlideGenerationOrchestrator:
         try:
             kba_query = self.data_queries.get_ytd_kba_by_tactic_query(
                 brand, market_name, month_year, zone_lma=zone_lma_type, client_code=client_code,
-                market_code=market_code, strict=False, months=rolling_months
+                market_code=market_code, strict=False, months=rolling_months, region=region
             )
             df_kba_raw = self.powerbi.execute_dax_query(kba_query)
             
@@ -1200,7 +1201,7 @@ class SlideGenerationOrchestrator:
         try:
             impressions_query = self.data_queries.get_ytd_impressions_by_vehicle_query(
                 brand, market_name, month_year, zone_lma=zone_lma_type, client_code=client_code,
-                market_code=market_code, strict=False, months=rolling_months
+                market_code=market_code, strict=False, months=rolling_months, region=region
             )
             df_impressions_raw = self.powerbi.execute_dax_query(impressions_query)
             
@@ -1632,9 +1633,9 @@ class SlideGenerationOrchestrator:
 
     def _save_complete_deck(self, prs, brand, market_name, month_year, zone_lma_type, 
                            market_code, region, output_folder, summary_only=False,
-                           flatten_slides=False, client_code=None, file_prefix=None): # <--- 3. SE ANADE FILE_PREFIX
+                           flatten_slides=False, client_code=None, file_prefix=None, compact_output=False, filename_stem=None):
         """Save complete deck and return filepath"""
-        folder_path = self._build_folder_path(brand, zone_lma_type, month_year, region, output_folder)
+        folder_path = output_folder if compact_output else self._build_folder_path(brand, zone_lma_type, month_year, region, output_folder)
         os.makedirs(folder_path, exist_ok=True)
         
         try:
@@ -1662,6 +1663,11 @@ class SlideGenerationOrchestrator:
         # ------------------------------------------------------------
         
         filepath = os.path.join(folder_path, filename)
+        if compact_output:
+            from rollup_builder import compact_deck_path
+            filepath = compact_deck_path(output_folder, brand, zone_lma_type, region,
+                                         file_prefix or client_code or filename_market_code, filename_stem=filename_stem)
+            filename = os.path.basename(filepath)
         
         # Safety net: prevent silent overwrite if collision wasn't caught upstream
         if os.path.exists(filepath):

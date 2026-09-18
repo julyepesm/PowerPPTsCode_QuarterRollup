@@ -4,6 +4,17 @@ Updated September 18, 2026. Start here when continuing this project.
 This supersedes the requirements and blocker in `MICKEY_HANDOFF.md`, which is
 retained as the original investigation history.
 
+## Latest extension: reusable selection
+
+The reusable builder developed on `feature/reusable-rollup` replaces the fixed UI with month-range
+or quarter/year selection, brand, tier, region, and individual markets with
+Select all/Clear selection. It also adds the requested month/quarter filenames,
+short Windows-compatible output paths, and in-app Microsoft sign-in instructions.
+Read [REUSABLE_ROLLUP.md](REUSABLE_ROLLUP.md) for the
+current UI workflow, query scopes, logs, and 45-test validation. The fixed 23-scope
+CLI remains available. The implementation and evidence below describe the original
+June-August deliverable and still apply to its reporting rules and data gaps.
+
 ## Current outcome and approved reporting rules
 
 The application now generates reports from the live Power BI dataset. The

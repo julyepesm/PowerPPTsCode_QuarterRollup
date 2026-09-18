@@ -20,6 +20,7 @@ class PowerBIConnector:
        
         self.access_token = None
         self.token_expiry = 0
+        self.on_device_code = None
         self.app = PublicClientApplication(
             client_id=self.client_id,
             authority=self.authority
@@ -53,6 +54,11 @@ class PowerBIConnector:
                 "message",
                 "Open https://microsoft.com/devicelogin and enter the displayed user code."
             ))
+            if self.on_device_code:
+                self.on_device_code(
+                    flow.get('verification_uri', 'https://microsoft.com/devicelogin'),
+                    flow['user_code'],
+                )
             result = self.app.acquire_token_by_device_flow(flow)
        
         if result and "access_token" in result:
