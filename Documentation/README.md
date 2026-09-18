@@ -44,8 +44,18 @@ Open your browser at [http://localhost:8501](http://localhost:8501).
 
 ### 4. Buick/GMC June-August 2026 Rollup
 
-Use the **GENERATE 22 ROLLUP DECKS** button in the Streamlit app, or run the
-dedicated CLI command from the repository root:
+The rollup has its own interface. Do not select a monthly Brand, Tier Type, or
+market in the regular app. Start it from the repository root with:
+
+```bash
+python -m streamlit run Scripts/rollup_ui.py
+```
+
+Alternatively, run `Button_Rollup.bat` from Windows. In the dedicated screen,
+leave the dates as June 1, 2026 through August 1, 2026 and click
+**GENERATE 22 ROLLUP DECKS**.
+
+The equivalent non-UI command is:
 
 ```bash
 python Scripts/main_slide_generator.py --quarter-rollup

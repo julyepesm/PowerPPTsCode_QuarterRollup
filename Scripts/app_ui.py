@@ -6,7 +6,6 @@ import pandas as pd
 from main_slide_generator import (
     SlideGenerationOrchestrator,
     process_batch_generation,
-    process_buick_gmc_quarter_rollup,
 )
 from filters_manager import GeneralFiltersConfig
 
@@ -363,25 +362,6 @@ with st.sidebar:
             final_selection = market_options
 
 # 3. MAIN AREA
-st.subheader("June-August 2026 Rollup")
-st.caption("Generates 22 Executive Summary decks: 11 markets for Buick and GMC.")
-if st.button("GENERATE 22 ROLLUP DECKS", type="secondary"):
-    with st.spinner("Generating Buick and GMC June-August rollups..."):
-        rollup_result = process_buick_gmc_quarter_rollup(
-            flatten_slides=flatten_slides
-        )
-    if rollup_result.get("errors", 1) == 0:
-        st.success(
-            f"Generated {rollup_result['successful_decks']} decks in "
-            f"`{rollup_result['output_folder']}`"
-        )
-    else:
-        st.warning(
-            f"Generated {rollup_result.get('successful_decks', 0)} of "
-            f"{rollup_result.get('expected_decks', 22)} decks."
-        )
-        st.dataframe(pd.DataFrame(rollup_result.get("details", [])))
-
 st.info(f"**Ready to generate:** {sel_brand} | {sel_type} | {len(final_selection)} Markets Selected")
 
 if st.button("GENERATE REPORTS", type="primary"):

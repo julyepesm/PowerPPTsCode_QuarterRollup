@@ -30,6 +30,9 @@ class PowerBIConnector:
 
     def authenticate(self, silent_only=False):
         """Authenticate with Power BI, reusing token if valid"""
+        if self.access_token and self.token_expiry > time.time() + 60:
+            return True
+
         # Try silent authentication first
         accounts = self.app.get_accounts()
         if accounts:
@@ -44,6 +47,7 @@ class PowerBIConnector:
        
         if result and "access_token" in result:
             self.access_token = result["access_token"]
+            self.token_expiry = time.time() + result.get("expires_in", 3600)
             # Update session headers with the new token
             self.session.headers.update(self.get_headers())
             return True
