@@ -1,5 +1,10 @@
 # Mickey Handoff: Buick/GMC Executive Summary Rollup
 
+> Update, September 18, 2026: the investigation below is historical. See
+> [ROLLUP_VALIDATION.md](ROLLUP_VALIDATION.md) for the confirmed Client Code
+> mismatch, fixes, live test results, and remaining data gaps. Per the user's
+> correction, YTD slides cover January-August, not just June-August.
+
 ## Objective
 
 Generate 22 PowerPoint decks:

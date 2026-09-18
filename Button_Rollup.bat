@@ -1,4 +1,8 @@
 @echo off
-cd /d "%~dp0Scripts"
-python -m streamlit run rollup_ui.py
+cd /d "%~dp0"
+if exist ".venv\Scripts\python.exe" (
+    ".venv\Scripts\python.exe" -m streamlit run Scripts\rollup_ui.py
+) else (
+    python -m streamlit run Scripts\rollup_ui.py
+)
 pause

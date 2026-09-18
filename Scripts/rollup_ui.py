@@ -5,12 +5,15 @@ import datetime
 import pandas as pd
 import streamlit as st
 
-from main_slide_generator import process_buick_gmc_quarter_rollup
+from main_slide_generator import process_buick_gmc_quarter_rollup, get_rollup_targets
 
 
 st.set_page_config(page_title="Buick/GMC Quarter Rollup", layout="centered")
 st.title("Buick/GMC Executive Summary Rollup")
-st.write("Generate 22 decks for the 11 markets using June-August 2026 data.")
+expected_decks = len(get_rollup_targets())
+st.write(f"Generate {expected_decks} decks using June-August 2026 data: 11 Buick and 12 GMC.")
+st.caption("GMC XTPC: separate Panama City and Tallahassee decks. Buick XTPC: one combined deck.")
+st.caption("Executive Summary: selected months. YTD slides: January through the selected end month.")
 
 col_start, col_end = st.columns(2)
 with col_start:
@@ -31,7 +34,7 @@ flatten_slides = st.checkbox(
     value=False,
 )
 
-if st.button("GENERATE 22 ROLLUP DECKS", type="primary", use_container_width=True):
+if st.button(f"GENERATE {expected_decks} ROLLUP DECKS", type="primary", width="stretch"):
     if start_date > end_date:
         st.error("The start month must be before or equal to the end month.")
     else:
@@ -51,6 +54,6 @@ if st.button("GENERATE 22 ROLLUP DECKS", type="primary", use_container_width=Tru
                 status.update(label="Rollup completed with errors", state="error")
                 st.warning(
                     f"Generated {result.get('successful_decks', 0)} of "
-                    f"{result.get('expected_decks', 22)} decks."
+                    f"{result.get('expected_decks', expected_decks)} decks."
                 )
                 st.dataframe(pd.DataFrame(result.get("details", [])))

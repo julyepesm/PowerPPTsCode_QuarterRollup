@@ -23,7 +23,7 @@ from measures import (
 from benchmarks import Benchmarks
 
 
-def create_executive_summary_slide(prs, brand, market, month, df_raw, brand_configs, slide_templates, zone_lma_type, audience=None):
+def create_executive_summary_slide(prs, brand, market, month, df_raw, brand_configs, slide_templates, zone_lma_type, audience=None, preserve_all_tactics=False):
     """
     Create the executive summary multi-card slide
     
@@ -66,7 +66,7 @@ def create_executive_summary_slide(prs, brand, market, month, df_raw, brand_conf
     site_grouping_rules = slide_templates.tactic_config.rules.get("site_grouping_rules", {})
     df_exec = calculate_exec_summary_metrics(
         df_filtered,
-        min_tactic_spend=GeneralFiltersConfig.min_tactic_spend,
+        min_tactic_spend=0 if preserve_all_tactics else GeneralFiltersConfig.min_tactic_spend,
         site_grouping_rules=site_grouping_rules
     )
     
@@ -86,7 +86,7 @@ def create_executive_summary_slide(prs, brand, market, month, df_raw, brand_conf
 
     # ========== FILTER OUT VIDEO TACTICS WITH 0 VIDEO COMPLETIONS ==========
     # For LMA: strict filter - FEP/YouTube must have video completions
-    if zone_lma_type == "LMA":
+    if zone_lma_type == "LMA" and not preserve_all_tactics:
         if video_completions_column and tactic_col:
             from filters_manager import GeneralFiltersConfig
             strict_video_tactics = GeneralFiltersConfig.lma_strict_video_tactics

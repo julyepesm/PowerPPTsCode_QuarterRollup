@@ -5,6 +5,7 @@ from Power BI data. Now uses the refactored modular architecture.
 """
 import os
 import argparse
+import json
 import re
 import time
 from datetime import datetime
@@ -359,7 +360,7 @@ class SlideGenerationOrchestrator:
                                            flatten_slides=None, client_code=None,
                                            market_code=None, display_market_name=None,
                                            file_prefix=None):
-        """Generate a cover, period Executive Summary, and three-month YTD slides."""
+        """Generate a period Executive Summary and January-through-end-month YTD slides."""
         do_flatten = flatten_slides if flatten_slides is not None else self.flatten_slides
         market_display_name = display_market_name or market_name
 
@@ -388,6 +389,8 @@ class SlideGenerationOrchestrator:
         prs, slides_created = self._add_title_slide(
             brand, market_display_name, period_label, zone_lma_type, None, 0
         )
+        if prs is None or slides_created != 1:
+            raise RuntimeError("Rollup cover could not be created")
         prs, slides_created = self._add_executive_summary_slide(
             brand, market_name, end_month_year, period_label, year, month, day,
             zone_lma_type, prs, slides_created, client_code=client_code,
@@ -395,12 +398,17 @@ class SlideGenerationOrchestrator:
             strict=True, start_month_year=start_month_year,
             end_month_year=end_month_year
         )
+        if slides_created <= 1:
+            raise RuntimeError("Rollup Executive Summary could not be created")
+        before_ytd = slides_created
         prs, slides_created = self._add_ytd_chart_slides(
-            brand, market_name, end_month_year, period_label, year, month, day,
+            brand, market_name, end_month_year, f"January-{end_date.strftime('%B %Y')}", year, month, day,
             zone_lma_type, prs, slides_created, client_code=client_code,
             display_market_name=market_display_name, market_code=market_code,
-            strict=True, rolling_months=3
+            strict=True, rolling_months=None, apply_filters=False
         )
+        if slides_created != before_ytd + 2:
+            raise RuntimeError("Rollup requires both KBA and impressions total slides")
 
         try:
             brand_config = self.brand_configs.get_brand_config(brand)
@@ -681,6 +689,11 @@ class SlideGenerationOrchestrator:
                 if final_rename_map:
                     print(f"  [DEBUG] Renaming Exec Summary columns: {final_rename_map}")
                     df_exec_raw = df_exec_raw.rename(columns=final_rename_map)
+
+                if start_month_year and end_month_year and client_code and not market_name:
+                    # The rollup query is already scoped to a brand/client. A client
+                    # can span multiple DMA names (XTPC); retain every returned row.
+                    df_exec_raw['Market'] = market_display_name
                 
                 # Get unique audiences from data (HIS, GEN, ASIAN)
                 audience_col = self._find_column(df_exec_raw, 'Audience')
@@ -715,7 +728,8 @@ class SlideGenerationOrchestrator:
                     exec_slide = create_executive_summary_slide(
                         prs, brand, market_display_name, formatted_month_year, 
                         df_audience, self.brand_configs, self.slide_templates, 
-                        zone_lma_type, audience=display_aud
+                        zone_lma_type, audience=display_aud,
+                        preserve_all_tactics=bool(start_month_year and end_month_year)
                     )
                     
                     if exec_slide is not None:
@@ -1141,7 +1155,7 @@ class SlideGenerationOrchestrator:
     def _add_ytd_chart_slides(self, brand, market_name, month_year, formatted_month_year,
                              year, month, day, zone_lma_type, prs, slides_created,
                              client_code=None, display_market_name=None,
-                             market_code=None, strict=False, rolling_months=None):
+                             market_code=None, strict=False, rolling_months=None, apply_filters=True):
         """Add YTD chart slides (KBA and Impressions)"""
         market_display_name = display_market_name if display_market_name else market_name
         
@@ -1162,6 +1176,7 @@ class SlideGenerationOrchestrator:
                     category_rename='Tactic',
                     limit_year=year,
                     limit_month=month,
+                    apply_filters=apply_filters,
                     error_context={
                         'brand': brand,
                         'market': market_name,
@@ -1170,7 +1185,7 @@ class SlideGenerationOrchestrator:
                 )
                 
                 from ytd_charts_refactored import create_ytd_kba_slide
-                prs, kba_slide = create_ytd_kba_slide(
+                kba_slide = create_ytd_kba_slide(
                     prs, brand, market_display_name, formatted_month_year, 
                     ytd_kba_pivot, self.brand_configs, self.slide_templates, 
                     zone_lma_type
@@ -1198,6 +1213,7 @@ class SlideGenerationOrchestrator:
                     category_rename='Vehicle',
                     limit_year=year,
                     limit_month=month,
+                    apply_filters=apply_filters,
                     error_context={
                         'brand': brand,
                         'market': market_name,
@@ -1228,7 +1244,7 @@ class SlideGenerationOrchestrator:
                         ytd_impressions_pivot = ytd_impressions_pivot.drop(columns=columns_to_drop)
 
                 from ytd_charts_refactored import create_ytd_impressions_slide
-                prs, imp_slide = create_ytd_impressions_slide(
+                imp_slide = create_ytd_impressions_slide(
                     prs, brand, market_display_name, formatted_month_year,
                     ytd_impressions_pivot, self.brand_configs, self.slide_templates,
                     zone_lma_type
@@ -1436,7 +1452,7 @@ class SlideGenerationOrchestrator:
 
     def _process_ytd_data(self, ytd_data_raw, date_col, category_col, value_col,
                           category_rename, limit_year=None, limit_month=None,
-                          error_context=None):
+                          error_context=None, apply_filters=True):
         """Generic method to process raw YTD data into pivot table format"""
         # Find column names flexibly (handle both 'Name' and 'Table[Name]')
         real_date_col = self._find_column(ytd_data_raw, date_col)
@@ -1469,7 +1485,7 @@ class SlideGenerationOrchestrator:
         # entire month when its total is below the inclusive threshold.
         from filters_manager import GeneralFiltersConfig
         spend_threshold = max(float(GeneralFiltersConfig.min_tactic_spend), 0)
-        if real_cost_col:
+        if real_cost_col and apply_filters:
             ytd_data_raw['_YTD_Cost'] = pd.to_numeric(
                 ytd_data_raw[real_cost_col], errors='coerce'
             ).fillna(0)
@@ -1511,7 +1527,7 @@ class SlideGenerationOrchestrator:
                             )
                             existing.add(error_key)
             ytd_data_raw = ytd_data_raw.drop(columns=['_YTD_Cost'])
-        else:
+        elif apply_filters:
             print(
                 "  [WARN] YTD Total Cost column not found; configurable spend "
                 "threshold was not applied"
@@ -1542,7 +1558,7 @@ class SlideGenerationOrchestrator:
         
         # ===== APPLY YTD FILTER TO MONTHLY ROWS =====
         # Filter out months with totals below minimum thresholds
-        if GeneralFiltersConfig.ytd_filter_enabled:
+        if apply_filters and GeneralFiltersConfig.ytd_filter_enabled:
             # Recalculate total for filtering
             ytd_pivot['_temp_total'] = ytd_pivot[category_columns].sum(axis=1)
             # FIXED CASE-SENSITIVE BUG: check 'impressions' in lowercase
@@ -1746,22 +1762,43 @@ BUICK_GMC_ROLLUP_MARKET_CODES = [
     "XHUN", "XMAC", "XMON", "XMOB", "XTPC"
 ]
 
+ROLLUP_MARKET_NAMES = dict(zip(BUICK_GMC_ROLLUP_MARKET_CODES, [
+    "Albany, GA", "Atlanta, GA", "Augusta, GA", "Birmingham, AL",
+    "Chattanooga, TN", "Columbus, GA", "Huntsville, AL", "Macon, GA",
+    "Montgomery, AL", "Mobile-Pensacola, FL", "Tallahassee-Panama City, FL",
+]))
 
-def resolve_rollup_market_rows(catalog, brand_col, code_col):
-    """Return catalog rows grouped by the requested Buick/GMC market codes."""
+
+def get_rollup_targets():
+    """Return explicit brand/client/DMA report scopes."""
+    targets = []
+    for brand in ("Buick", "GMC"):
+        for client in BUICK_GMC_ROLLUP_MARKET_CODES:
+            markets = [(None, ROLLUP_MARKET_NAMES[client])]
+            if brand == "GMC" and client == "XTPC":
+                markets = [("PANFL", "Panama City, FL"), ("TALFL", "Tallahassee, FL")]
+            for market, name in markets:
+                targets.append({"brand": brand, "client_code": client,
+                                "market_code": market, "display_market_name": name,
+                                "report_code": f"{client}-{market}" if market else client})
+    return targets
+
+
+def resolve_rollup_market_rows(catalog, brand_col, code_col, client_col=None):
+    """Group by Client Code when supplied; retain legacy market-code matching."""
     matches = []
     for brand in ("Buick", "GMC"):
         brand_rows = catalog[
             catalog[brand_col].astype(str).str.strip().str.lower() == brand.lower()
         ].copy()
-        brand_rows["_MarketCodeClean"] = brand_rows[code_col].map(
+        brand_rows["_MarketCodeClean"] = brand_rows[client_col or code_col].map(
             lambda value: str(value).strip().upper()
         )
 
         for requested_code in BUICK_GMC_ROLLUP_MARKET_CODES:
             market_rows = brand_rows[
                 (brand_rows["_MarketCodeClean"] == requested_code) |
-                brand_rows["_MarketCodeClean"].str.startswith(f"{requested_code}-")
+                (brand_rows["_MarketCodeClean"].str.startswith(f"{requested_code}-") if client_col is None else False)
             ]
             if not market_rows.empty:
                 matches.append((brand, requested_code, market_rows.drop(columns=["_MarketCodeClean"])))
@@ -1772,12 +1809,13 @@ def process_buick_gmc_quarter_rollup(start_month_year="2026-06-01",
                                      end_month_year="2026-08-01",
                                      output_folder="Generated_Slides",
                                      flatten_slides=False):
-    """Generate the 22 Buick/GMC June-August rollup decks."""
+    """Generate 23 reports: combined Buick XTPC, separate GMC PANFL/TALFL."""
+    targets = get_rollup_targets()
     generator = SlideGenerationOrchestrator(flatten_slides=flatten_slides)
     if not generator.authenticate():
         return {"errors": 1, "details": [{"Status": "Failed", "Error": "Authentication failed"}]}
 
-    timestamp_str = datetime.now().strftime("%b-%d_%H-%M")
+    timestamp_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     batch_output_dir = os.path.join(output_folder, f"Buick_GMC_Rollup_{timestamp_str}")
     os.makedirs(batch_output_dir, exist_ok=True)
 
@@ -1813,7 +1851,7 @@ def process_buick_gmc_quarter_rollup(start_month_year="2026-06-01",
     if missing_columns:
         return {
             "errors": 1,
-            "expected_decks": len(BUICK_GMC_ROLLUP_MARKET_CODES) * 2,
+            "expected_decks": len(targets),
             "successful_decks": 0,
             "details": [{
                 "Status": "Failed",
@@ -1827,47 +1865,53 @@ def process_buick_gmc_quarter_rollup(start_month_year="2026-06-01",
 
     brand_col = column_aliases["Brand"]
     type_col = column_aliases["Type"]
-    market_col = column_aliases["Market"]
     code_col = column_aliases["Code"]
     client_col = column_aliases["Client"]
     details = []
 
-    for brand, requested_code, market_rows in resolve_rollup_market_rows(
-        catalog, brand_col, code_col
-    ):
-            row = market_rows.iloc[0]
-            market_codes = [
-                str(value).strip() for value in market_rows[code_col].dropna().unique()
-                if str(value).strip() and str(value).strip().lower() != "nan"
-            ]
-            market_code = market_codes[0] if len(market_codes) == 1 else market_codes
-            client_codes = []
-            if client_col:
-                client_codes = [
-                    str(value).strip() for value in market_rows[client_col].dropna().unique()
-                    if str(value).strip().lower() != "nan" and str(value).strip()
+    matched_rows = {(brand, code): rows for brand, code, rows in resolve_rollup_market_rows(
+        catalog, brand_col, code_col, client_col=client_col
+    )}
+    for target in targets:
+        brand = target['brand']
+        requested_code = target['client_code']
+        market_code = target['market_code']
+        report_code = target['report_code']
+        detail = {"Brand": brand, "Client Code": requested_code,
+                  "Market Code": market_code, "Report Code": report_code, "Status": "Failed"}
+        try:
+            market_rows = matched_rows.get((brand, requested_code), catalog.iloc[:0])
+            if market_code:
+                market_rows = market_rows[
+                    market_rows[code_col].astype(str).str.strip().str.upper() == market_code
                 ]
-            client_code = client_codes if len(client_codes) > 1 else (client_codes[0] if client_codes else None)
+            if market_rows.empty:
+                raise ValueError("No catalog rows for this brand/client/market scope")
+            tiers = {str(value).strip() for value in market_rows[type_col].dropna() if str(value).strip()}
+            if tiers != {"LMA"}:
+                raise ValueError(f"Expected LMA client; catalog tiers: {sorted(tiers)}")
             result = generator.generate_quarter_rollup_for_market(
                 brand=brand,
-                market_name=str(row[market_col]).strip(),
+                market_name=None,
                 start_month_year=start_month_year,
                 end_month_year=end_month_year,
-                zone_lma_type=str(row[type_col]).strip(),
+                zone_lma_type="LMA",
                 output_folder=batch_output_dir,
                 flatten_slides=flatten_slides,
-                client_code=client_code,
+                client_code=requested_code,
                 market_code=market_code,
-                display_market_name=str(row[market_col]).strip(),
-                file_prefix=f"{brand}_{market_code}"
+                display_market_name=target['display_market_name'],
+                file_prefix=f"{report_code}_{start_month_year[:7]}_{end_month_year[:7]}"
             )
-            details.append({
-                "Brand": brand,
-                "Market Code": requested_code,
-                "Status": "Success" if result else "Failed"
-            })
+            if result:
+                detail.update({"Status": "Success", "File": result['filepath']})
+            else:
+                detail['Error'] = "No tactics/data for this client in the selected period"
+        except Exception as exc:
+            detail['Error'] = str(exc)
+        details.append(detail)
 
-    expected = len(BUICK_GMC_ROLLUP_MARKET_CODES) * 2
+    expected = len(targets)
     successful = sum(item["Status"] == "Success" for item in details)
     if not details:
         details.append({
@@ -1878,13 +1922,17 @@ def process_buick_gmc_quarter_rollup(start_month_year="2026-06-01",
                 f"{', '.join(BUICK_GMC_ROLLUP_MARKET_CODES)}"
             ),
         })
-    return {
+    result = {
         "errors": expected - successful,
         "expected_decks": expected,
         "successful_decks": successful,
         "details": details,
         "output_folder": batch_output_dir
     }
+    with open(os.path.join(batch_output_dir, "rollup_results.json"), "w", encoding="utf-8") as handle:
+        json.dump(result, handle, indent=2)
+    pd.DataFrame(details).to_csv(os.path.join(batch_output_dir, "rollup_results.csv"), index=False)
+    return result
 
 
 def diagnose_buick_gmc_rollup_catalog():
@@ -1919,11 +1967,21 @@ def diagnose_buick_gmc_rollup_catalog():
     print(catalog.iloc[:, 0].astype(str).value_counts().head(20).to_string())
     print("LIVE SAMPLE ROWS:")
     print(catalog.head(20).to_string(index=False))
+    diagnostic_dir = os.path.join("Generated_Slides", "diagnostics")
+    os.makedirs(diagnostic_dir, exist_ok=True)
+    catalog.to_csv(os.path.join(diagnostic_dir, "rollup_catalog.csv"), index=False)
+    target_pattern = "|".join(BUICK_GMC_ROLLUP_MARKET_CODES)
+    target_rows = catalog.astype(str).apply(
+        lambda column: column.str.contains(target_pattern, case=False, na=False)
+    ).any(axis=1)
+    print("REQUESTED CODES FOUND IN ANY CATALOG FIELD:")
+    print(catalog.loc[target_rows].to_string(index=False))
     brand_col = generator._find_column(catalog, "Brand")
     code_col = generator._find_column(catalog, "MarketCode")
     if brand_col and code_col:
-        matches = resolve_rollup_market_rows(catalog, brand_col, code_col)
-        print(f"LIVE ROLLUP MATCHES: {len(matches)} of 22")
+        client_col = generator._find_column(catalog, "ClientCode")
+        matches = resolve_rollup_market_rows(catalog, brand_col, code_col, client_col=client_col)
+        print(f"LIVE BRAND/CLIENT MATCHES: {len(matches)} of 22; expected report scopes: {len(get_rollup_targets())}")
         for brand, requested_code, rows in matches:
             actual_codes = rows[code_col].dropna().astype(str).unique().tolist()
             print(f"  {brand} {requested_code}: {actual_codes}")
@@ -2069,7 +2127,7 @@ if __name__ == "__main__":
 
     if args.quarter_rollup:
         rollup_result = process_buick_gmc_quarter_rollup()
-        print(f"Generated {rollup_result.get('successful_decks', 0)} of {rollup_result.get('expected_decks', 22)} decks")
+        print(f"Generated {rollup_result.get('successful_decks', 0)} of {rollup_result.get('expected_decks', len(get_rollup_targets()))} decks")
         print(f"Output folder: {rollup_result.get('output_folder', 'Unavailable')}")
         raise SystemExit(0 if rollup_result.get('errors', 1) == 0 else 1)
     
