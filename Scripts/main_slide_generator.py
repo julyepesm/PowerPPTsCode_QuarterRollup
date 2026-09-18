@@ -1870,12 +1870,20 @@ def process_buick_gmc_quarter_rollup(start_month_year="2026-06-01",
     expected = len(BUICK_GMC_ROLLUP_MARKET_CODES) * 2
     successful = sum(item["Status"] == "Success" for item in details)
     if not details:
+        brand_values = sorted(
+            catalog[brand_col].dropna().astype(str).str.strip().unique().tolist()
+        )
+        code_values = sorted(
+            catalog[code_col].dropna().astype(str).str.strip().unique().tolist()
+        )
         details.append({
             "Status": "Failed",
             "Error": (
                 "Power BI returned no Buick/GMC rows for the configured market codes. "
                 f"Returned catalog rows: {len(catalog)}. Expected codes: "
-                f"{', '.join(BUICK_GMC_ROLLUP_MARKET_CODES)}"
+                f"{', '.join(BUICK_GMC_ROLLUP_MARKET_CODES)}. "
+                f"Returned brands: {brand_values[:20]}. "
+                f"Returned market-code samples: {code_values[:40]}"
             ),
         })
     return {
