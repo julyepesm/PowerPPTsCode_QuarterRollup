@@ -40,10 +40,20 @@ class PowerBIConnector:
         else:
             result = None
        
-        # If silent fails and not silent_only, use interactive
+        # If silent fails and not silent_only, use device code authentication.
+        # This keeps Streamlit from waiting on a browser callback in its server process.
         if not result and not silent_only:
-            print("Authenticating with Power BI (Interactive)...")
-            result = self.app.acquire_token_interactive(scopes=self.scope)
+            print("Authenticating with Power BI (Device Code)...")
+            flow = self.app.initiate_device_flow(scopes=self.scope)
+            if "user_code" not in flow:
+                print(f"Could not start device authentication: {flow}")
+                return False
+
+            print(flow.get(
+                "message",
+                "Open https://microsoft.com/devicelogin and enter the displayed user code."
+            ))
+            result = self.app.acquire_token_by_device_flow(flow)
        
         if result and "access_token" in result:
             self.access_token = result["access_token"]

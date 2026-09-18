@@ -55,6 +55,10 @@ Alternatively, run `Button_Rollup.bat` from Windows. In the dedicated screen,
 leave the dates as June 1, 2026 through August 1, 2026 and click
 **GENERATE 22 ROLLUP DECKS**.
 
+On the first run, Power BI authentication uses device code flow. Copy the code
+shown in the Streamlit terminal, open `https://microsoft.com/devicelogin`,
+complete the Microsoft login, and return to the rollup screen.
+
 The equivalent non-UI command is:
 
 ```bash

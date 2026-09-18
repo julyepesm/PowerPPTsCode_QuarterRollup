@@ -44,8 +44,9 @@ The user should leave the dates at June 1, 2026 and August 1, 2026, then click
 ### 3. Authentication reuse
 
 `Scripts/powerbi_connector.py:31` now reuses a valid access token and tracks
-its expiry. This prevents the rollup from attempting interactive login once
-for every market.
+its expiry. When silent authentication is unavailable, it uses Microsoft
+device code flow instead of waiting for a browser callback. Copy the code from
+the terminal into `https://microsoft.com/devicelogin`.
 
 ### 4. Market-code matching
 
