@@ -1,0 +1,24 @@
+{
+  "name": "Buick Theme",
+  "dataColors": [
+    "#FE5000", 
+    "#F4B56A",
+    "#333333",
+    "#F6F5F4",
+    "#EFEDEA"
+  ],
+  "textClasses": {
+    "label": {
+      "fontFace": "Buick Text Light",
+      "color": "#333333"
+    },
+    "title": {
+      "fontFace": "Buick Text Light",
+      "color": "#333333"
+    },
+    "callout": {
+      "fontFace": "Buick Text Light",
+      "color": "#333333"
+    }
+  }
+}

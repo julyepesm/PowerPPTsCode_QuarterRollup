@@ -1,0 +1,51 @@
+{
+  "tactic_mappings": {
+    "Pre-roll": "PreRoll",
+    "Preroll": "PreRoll",
+    "Digital Video": "PreRoll",
+    "OLV": "PreRoll",
+    "CTV": "FEP"
+  },
+  "site_grouping_rules": {
+    "Ampersand": [
+      "Ampersand-Spectrum",
+      "ampersand MSP FEP",
+      "Ampersand-GEN",
+      "AMPERSAND",
+      "AMPERSAND-SPECTRUM",
+      "AMPERSAND MSP FEP"
+    ]
+  },
+  "video_tactics": [
+    "FEP",
+    "YouTube",
+    "OLV",
+    "CTV",
+    "Meta Video",
+    "Pinterest Video",
+    "TikTok",
+    "PreRoll"
+  ],
+  "four_box_tactics": [
+    "PreRoll",
+    "YouTube",
+    "BT Display",
+    "Consideration Display",
+    "Retargeting Display"
+  ],
+  "sorting_ranks": {
+    "FEP": 10,
+    "PreRoll": 30,
+    "YouTube": 40,
+    "BT Display": 50,
+    "Consideration Display": 55,
+    "Retargeting Display": 60,
+    "Meta Display": 70,
+    "Meta Video": 80,
+    "Pinterest Display": 90,
+    "Pinterest Video": 100,
+    "TikTok": 110,
+    "Search": 120,
+    "Audio": 130
+  }
+}

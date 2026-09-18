@@ -1,0 +1,15 @@
+{
+  "name": "Cadillac Theme",
+  "dataColors": [
+    "#FA0037",
+    "#2C28E8",
+    "#F3C846",
+    "#000000",
+    "#FFFFFF"
+    ],
+  "textClasses": {
+      "label": { "fontFace": "Cadillac Gothic Narrow" },
+      "title": { "fontFace": "Cadillac Gothic Narrow" },
+      "callout": { "fontFace": "Cadillac Gothic Narrow" }
+    }
+  }

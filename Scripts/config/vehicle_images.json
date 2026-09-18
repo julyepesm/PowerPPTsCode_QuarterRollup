@@ -1,0 +1,571 @@
+{
+  "version": 2,
+  "image_root": "Design/Cars",
+  "defaults": {
+    "classification": "vehicle",
+    "status": "approved",
+    "generate_slides": true
+  },
+  "unmapped": {
+    "classification": "unmapped",
+    "status": "pending_review",
+    "generate_slides": false,
+    "reason": "Vehicle value is not registered in the JSON taxonomy. Add it as an approved model or an explicit exclusion before generating slides."
+  },
+  "brands": {
+    "buick": {
+      "models": [
+        {
+          "id": "envista",
+          "canonical_name": "Envista",
+          "aliases": ["Envista"],
+          "images": {
+            "insights": "Buick/envista_insights.png",
+            "exec": "Buick/envista_exec.png"
+          }
+        },
+        {
+          "id": "encore_gx",
+          "canonical_name": "Encore GX",
+          "aliases": ["EncoreGX", "Encore GX"],
+          "images": {
+            "insights": "Buick/encoregx_insights.png",
+            "exec": "Buick/encoregx_exec.png"
+          }
+        },
+        {
+          "id": "envision",
+          "canonical_name": "Envision",
+          "aliases": ["Envision"],
+          "images": {
+            "insights": "Buick/envision_insights.png",
+            "exec": "Buick/envision_exec.png"
+          }
+        },
+        {
+          "id": "enclave",
+          "canonical_name": "Enclave",
+          "aliases": ["Enclave"],
+          "images": {
+            "insights": "Buick/enclave_insights.png",
+            "exec": "Buick/enclave_exec.png"
+          }
+        },
+        {
+          "id": "encore",
+          "canonical_name": "Encore",
+          "aliases": ["Encore"],
+          "images": {
+            "insights": "Buick/encore_insights.png",
+            "exec": "Buick/encore_exec.png"
+          },
+          "reason": "Retained because it is present in the source CSV and has dedicated assets; the reference list is guidance, not an exclusion list."
+        },
+        {
+          "id": "buick_multiline",
+          "canonical_name": "Buick Multiline",
+          "aliases": [
+            "BuickMultiline",
+            "Buick Multiline",
+            "BuickMultinline",
+            "Buick Multinline"
+          ],
+          "classification": "multiline",
+          "images": {
+            "insights": "Buick/BuickMultiline.png",
+            "exec": "Buick/BuickMultiline.png"
+          }
+        },
+        {
+          "id": "rollup_compact_suv",
+          "canonical_name": "Compact SUV",
+          "aliases": ["CompactSUV", "Compact SUV"],
+          "classification": "rollup",
+          "status": "excluded",
+          "generate_slides": false,
+          "reason": "Aggregate vehicle segment; it is not an individual Buick model.",
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "rollup_midsize_suv",
+          "canonical_name": "Midsize SUV",
+          "aliases": ["MidsizeSUV", "Midsize SUV"],
+          "classification": "rollup",
+          "status": "excluded",
+          "generate_slides": false,
+          "reason": "Aggregate vehicle segment; it is not an individual Buick model.",
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "rollup_small_suv",
+          "canonical_name": "Small SUV",
+          "aliases": ["SmallSUV", "Small SUV"],
+          "classification": "rollup",
+          "status": "excluded",
+          "generate_slides": false,
+          "reason": "Aggregate vehicle segment; it is not an individual Buick model.",
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "cross_brand_chevy_multiline",
+          "canonical_name": "Chevy Multiline",
+          "aliases": ["ChevyMultiline", "Chevy Multiline", "ChevyMultinline", "Chevy Multinline"],
+          "classification": "cross_brand_error",
+          "status": "excluded",
+          "generate_slides": false,
+          "reason": "The source CSV assigns a Chevrolet multiline value to Buick; it must be corrected upstream.",
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "cross_brand_sierra",
+          "canonical_name": "Sierra",
+          "aliases": ["Sierra"],
+          "classification": "cross_brand_error",
+          "status": "excluded",
+          "generate_slides": false,
+          "reason": "Sierra is a GMC model but appears under Buick in the source CSV.",
+          "images": {"insights": null, "exec": null}
+        }
+      ]
+    },
+    "gmc": {
+      "models": [
+        {
+          "id": "canyon",
+          "canonical_name": "Canyon",
+          "aliases": ["Canyon"],
+          "images": {
+            "insights": "GMC/canyon_insights.png",
+            "exec": "GMC/canyon_exec.png"
+          }
+        },
+        {
+          "id": "sierra_1500",
+          "canonical_name": "Sierra 1500",
+          "aliases": ["Sierra", "SierraLD", "Sierra LD", "Sierra1500", "Sierra 1500"],
+          "images": {
+            "insights": "GMC/sierra1500_insights_v2.png",
+            "exec": "GMC/sierra1500_exec_v2.png"
+          }
+        },
+        {
+          "id": "sierra_2500_hd",
+          "canonical_name": "Sierra 2500 HD",
+          "aliases": ["Sierra2500", "Sierra 2500", "Sierra2500HD", "Sierra 2500 HD"],
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "sierra_3500_hd",
+          "canonical_name": "Sierra 3500 HD",
+          "aliases": ["Sierra3500", "Sierra 3500", "Sierra3500HD", "Sierra 3500 HD"],
+          "images": {
+            "insights": "GMC/sierra3500hd_insights.png",
+            "exec": "GMC/sierra3500hd_exec.png"
+          }
+        },
+        {
+          "id": "sierra_ev",
+          "canonical_name": "Sierra EV",
+          "aliases": ["SierraEV", "Sierra EV"],
+          "images": {
+            "insights": "GMC/sierraev_insights_v2.png",
+            "exec": "GMC/sierraev_exec_v2.png"
+          }
+        },
+        {
+          "id": "hummer_ev_pickup",
+          "canonical_name": "HUMMER EV Pickup",
+          "aliases": [
+            "HummerEVPickup",
+            "Hummer EV Pickup",
+            "HummerEVTruck",
+            "Hummer EV Truck",
+            "HummerPickupTruck",
+            "Hummer Pickup Truck"
+          ],
+          "images": {
+            "insights": "GMC/hummerevpickup_insights.png",
+            "exec": "GMC/hummerevpickup_exec.png"
+          }
+        },
+        {
+          "id": "terrain",
+          "canonical_name": "Terrain",
+          "aliases": ["Terrain"],
+          "images": {
+            "insights": "GMC/terrain_insights_v2.png",
+            "exec": "GMC/terrain_exec_v2.png"
+          }
+        },
+        {
+          "id": "acadia",
+          "canonical_name": "Acadia",
+          "aliases": ["Acadia"],
+          "images": {
+            "insights": "GMC/acadia_insights.png",
+            "exec": "GMC/acadia_exec.png"
+          }
+        },
+        {
+          "id": "yukon",
+          "canonical_name": "Yukon",
+          "aliases": ["Yukon"],
+          "images": {
+            "insights": "GMC/yukon_insights.png",
+            "exec": "GMC/yukon_exec.png"
+          }
+        },
+        {
+          "id": "yukon_xl",
+          "canonical_name": "Yukon XL",
+          "aliases": ["YukonXL", "Yukon XL"],
+          "images": {
+            "insights": "GMC/yukonxl_insights.png",
+            "exec": "GMC/yukonxl_exec.png"
+          }
+        },
+        {
+          "id": "hummer_ev_suv",
+          "canonical_name": "HUMMER EV SUV",
+          "aliases": ["HummerEVSUV", "Hummer EV SUV"],
+          "images": {
+            "insights": "GMC/hummerevsuv_insights.png",
+            "exec": "GMC/hummerevsuv_exec.png"
+          }
+        },
+        {
+          "id": "savana_cargo",
+          "canonical_name": "Savana Cargo",
+          "aliases": ["SavanaCargo", "Savana Cargo"],
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "savana_passenger",
+          "canonical_name": "Savana Passenger",
+          "aliases": ["SavanaPassenger", "Savana Passenger"],
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "savana_cutaway",
+          "canonical_name": "Savana Cutaway",
+          "aliases": ["SavanaCutaway", "Savana Cutaway"],
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "gmc_multiline",
+          "canonical_name": "GMC Multiline",
+          "aliases": ["GMCMultiline", "GMC Multiline", "GMCMultinline", "GMC Multinline"],
+          "classification": "multiline",
+          "images": {
+            "insights": "GMC/GMCMultiline.png",
+            "exec": "GMC/GMCMultiline.png"
+          }
+        },
+        {
+          "id": "ambiguous_hummer_ev",
+          "canonical_name": "HUMMER EV",
+          "aliases": ["HummerEV", "Hummer EV"],
+          "classification": "ambiguous",
+          "status": "pending_review",
+          "generate_slides": false,
+          "reason": "The value does not distinguish HUMMER EV Pickup from HUMMER EV SUV.",
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "ambiguous_sierra_hd",
+          "canonical_name": "Sierra HD",
+          "aliases": ["SierraHD", "Sierra HD"],
+          "classification": "ambiguous",
+          "status": "pending_review",
+          "generate_slides": false,
+          "reason": "The value does not distinguish Sierra 2500 HD from Sierra 3500 HD.",
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "rollup_compact_suv",
+          "canonical_name": "Compact SUV",
+          "aliases": ["CompactSUV", "Compact SUV"],
+          "classification": "rollup",
+          "status": "excluded",
+          "generate_slides": false,
+          "reason": "Aggregate vehicle segment; it is not an individual GMC model.",
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "rollup_midsize_suv",
+          "canonical_name": "Midsize SUV",
+          "aliases": ["MidsizeSUV", "Midsize SUV"],
+          "classification": "rollup",
+          "status": "excluded",
+          "generate_slides": false,
+          "reason": "Aggregate vehicle segment; it is not an individual GMC model.",
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "rollup_small_suv",
+          "canonical_name": "Small SUV",
+          "aliases": ["SmallSUV", "Small SUV"],
+          "classification": "rollup",
+          "status": "excluded",
+          "generate_slides": false,
+          "reason": "Aggregate vehicle segment; it is not an individual GMC model.",
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "rollup_truck",
+          "canonical_name": "Truck",
+          "aliases": ["Truck"],
+          "classification": "rollup",
+          "status": "excluded",
+          "generate_slides": false,
+          "reason": "Aggregate vehicle segment; it is not an individual GMC model.",
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "rollup_gmc",
+          "canonical_name": "GMC",
+          "aliases": ["GMC"],
+          "classification": "brand_rollup",
+          "status": "excluded",
+          "generate_slides": false,
+          "reason": "Brand-level aggregate; it is not an individual model or the explicit GMC Multiline value.",
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "cross_brand_buick_multiline",
+          "canonical_name": "Buick Multiline",
+          "aliases": ["BuickMultiline", "Buick Multiline", "BuickMultinline", "Buick Multinline"],
+          "classification": "cross_brand_error",
+          "status": "excluded",
+          "generate_slides": false,
+          "reason": "The source CSV assigns a Buick multiline value to GMC; it must be corrected upstream.",
+          "images": {"insights": null, "exec": null}
+        }
+      ]
+    },
+    "cadillac": {
+      "models": [
+        {
+          "id": "xt5",
+          "canonical_name": "XT5",
+          "aliases": ["XT5", "XT 5"],
+          "images": {
+            "insights": "Cadillac/XT5/XT5_insights.png",
+            "exec": "Cadillac/XT5/XT5_exec.png"
+          }
+        },
+        {
+          "id": "escalade",
+          "canonical_name": "Escalade",
+          "aliases": ["Escalade"],
+          "images": {
+            "insights": "Cadillac/Escalade/escalade_insights.png",
+            "exec": "Cadillac/Escalade/escalade_exec.png"
+          }
+        },
+        {
+          "id": "escalade_esv",
+          "canonical_name": "Escalade ESV",
+          "aliases": ["EscaladeESV", "Escalade ESV"],
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "escalade_v",
+          "canonical_name": "Escalade-V",
+          "aliases": ["EscaladeV", "Escalade V", "Escalade-V"],
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "escalade_v_esv",
+          "canonical_name": "Escalade-V ESV",
+          "aliases": ["EscaladeVESV", "Escalade V ESV", "Escalade-V ESV"],
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "optiq",
+          "canonical_name": "OPTIQ",
+          "aliases": ["Optiq"],
+          "images": {
+            "insights": "Cadillac/Optiq/optiq_insights.png",
+            "exec": "Cadillac/Optiq/optiq_exec.png"
+          }
+        },
+        {
+          "id": "optiq_v",
+          "canonical_name": "OPTIQ-V",
+          "aliases": ["OptiqV", "Optiq V", "Optiq-V"],
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "lyriq",
+          "canonical_name": "LYRIQ",
+          "aliases": ["Lyriq"],
+          "images": {
+            "insights": "Cadillac/Lyriq/lyriq_insights.png",
+            "exec": "Cadillac/Lyriq/lyriq_exec.png"
+          }
+        },
+        {
+          "id": "lyriq_v",
+          "canonical_name": "LYRIQ-V",
+          "aliases": ["LyriqV", "Lyriq V", "Lyriq-V"],
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "vistiq",
+          "canonical_name": "VISTIQ",
+          "aliases": ["Vistiq"],
+          "images": {
+            "insights": "Cadillac/Vistiq/vistiq_insights.png",
+            "exec": "Cadillac/Vistiq/vistiq_exec.png"
+          }
+        },
+        {
+          "id": "escalade_iq",
+          "canonical_name": "ESCALADE IQ",
+          "aliases": ["EscaladeIQ", "Escalade IQ"],
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "escalade_iql",
+          "canonical_name": "ESCALADE IQL",
+          "aliases": ["EscaladeIQL", "Escalade IQL"],
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "ct4",
+          "canonical_name": "CT4",
+          "aliases": ["CT4", "CT 4"],
+          "images": {
+            "insights": "Cadillac/CT4/CT4_insights.png",
+            "exec": "Cadillac/CT4/CT4_exec.png"
+          }
+        },
+        {
+          "id": "ct4_v",
+          "canonical_name": "CT4-V",
+          "aliases": ["CT4V", "CT4 V", "CT4-V"],
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "ct4_v_blackwing",
+          "canonical_name": "CT4-V Blackwing",
+          "aliases": ["CT4VBlackwing", "CT4 V Blackwing", "CT4-V Blackwing"],
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "ct5",
+          "canonical_name": "CT5",
+          "aliases": ["CT5", "CT 5"],
+          "images": {
+            "insights": "Cadillac/CT5/CT5_insights.png",
+            "exec": "Cadillac/CT5/CT5_exec.png"
+          }
+        },
+        {
+          "id": "ct5_v",
+          "canonical_name": "CT5-V",
+          "aliases": ["CT5V", "CT5 V", "CT5-V"],
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "ct5_v_blackwing",
+          "canonical_name": "CT5-V Blackwing",
+          "aliases": ["CT5VBlackwing", "CT5 V Blackwing", "CT5-V Blackwing"],
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "celestiq",
+          "canonical_name": "CELESTIQ",
+          "aliases": ["Celestiq"],
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "xt4",
+          "canonical_name": "XT4",
+          "aliases": ["XT4", "XT 4"],
+          "images": {
+            "insights": "Cadillac/XT4/XT4_insights.png",
+            "exec": "Cadillac/XT4/XT4_exec.png"
+          },
+          "reason": "Retained because it is present in the source CSV and has dedicated assets; the reference list is guidance, not an exclusion list."
+        },
+        {
+          "id": "xt6",
+          "canonical_name": "XT6",
+          "aliases": ["XT6", "XT 6"],
+          "images": {
+            "insights": "Cadillac/XT6/XT6_insights.png",
+            "exec": "Cadillac/XT6/XT6_exec.png"
+          },
+          "reason": "Retained because it is present in the source CSV and has dedicated assets; the reference list is guidance, not an exclusion list."
+        },
+        {
+          "id": "cadillac_multiline",
+          "canonical_name": "Cadillac Multiline",
+          "aliases": [
+            "CadillacMultiline",
+            "Cadillac Multiline",
+            "CadillacMultinline",
+            "Cadillac Multinline"
+          ],
+          "classification": "multiline",
+          "images": {
+            "insights": "Cadillac/Cadillac Multiline Logo.png",
+            "exec": "Cadillac/Cadillac Multiline Logo.png"
+          }
+        },
+        {
+          "id": "rollup_ev_suv",
+          "canonical_name": "EV SUV",
+          "aliases": ["EVSUV", "EV SUV"],
+          "classification": "rollup",
+          "status": "excluded",
+          "generate_slides": false,
+          "reason": "Aggregate vehicle segment; it is not an individual Cadillac model.",
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "rollup_luxury_ev",
+          "canonical_name": "Luxury EV",
+          "aliases": ["LuxuryEV", "Luxury EV"],
+          "classification": "rollup",
+          "status": "excluded",
+          "generate_slides": false,
+          "reason": "Aggregate vehicle segment; it is not an individual Cadillac model.",
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "rollup_sedan",
+          "canonical_name": "Sedan",
+          "aliases": ["Sedan"],
+          "classification": "rollup",
+          "status": "excluded",
+          "generate_slides": false,
+          "reason": "Aggregate vehicle segment; it is not an individual Cadillac model.",
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "rollup_suv",
+          "canonical_name": "SUV",
+          "aliases": ["SUV"],
+          "classification": "rollup",
+          "status": "excluded",
+          "generate_slides": false,
+          "reason": "Aggregate vehicle segment; it is not an individual Cadillac model.",
+          "images": {"insights": null, "exec": null}
+        },
+        {
+          "id": "cross_brand_gmc_multiline",
+          "canonical_name": "GMC Multiline",
+          "aliases": ["GMCMultiline", "GMC Multiline", "GMCMultinline", "GMC Multinline"],
+          "classification": "cross_brand_error",
+          "status": "excluded",
+          "generate_slides": false,
+          "reason": "The source CSV assigns a GMC multiline value to Cadillac; it must be corrected upstream.",
+          "images": {"insights": null, "exec": null}
+        }
+      ]
+    }
+  }
+}

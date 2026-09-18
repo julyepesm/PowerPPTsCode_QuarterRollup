@@ -1,0 +1,10 @@
+{
+  "ytd_filter_enabled": true,
+  "ytd_min_outcomes": 100,
+  "ytd_min_impressions": 1000,
+  "rolling_window_months": 6,
+  "exclude_zero_cost_months": true,
+  "skip_video_tactics_with_zero_completions": true,
+  "lma_strict_video_tactics": ["FEP", "YouTube"],
+  "min_tactic_spend": 50
+}

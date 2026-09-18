@@ -1,0 +1,241 @@
+{
+    "GMC": {
+        "FEP": {
+            "GEN": {
+                "VCR": 0.90
+            },
+            "HIS": {
+                "VCR": 0.90
+            }
+        },
+        "YouTube": {
+            "GEN": {
+                "CPCV": 0.02
+            },
+            "HIS": {
+                "CPCV": 0.02
+            },
+            "ASN": {
+                "CPCV": 0.02
+            }
+        },
+        "PreRoll": {
+            "VCR": 0.66
+        },
+        "BT Display": {
+            "CPA": {
+                "2024-01-01": 0.17,
+                "2024-02-01": 0.35,
+                "2025-04-01": 0.30
+            }
+        },
+        "Consideration Display": {
+            "CPA": 0.67
+        },
+        "Retargeting Display": {
+            "CPA": {
+                "2024-01-01": 0.09,
+                "2025-02-01": 0.06
+            }
+        },
+        "Meta Display": {
+            "GEN": {
+                "CPA": 0.66
+            },
+            "HIS": {
+                "CPA": 1.55
+            }
+        },
+        "Meta Video": {
+            "VCR": 0.60
+        },
+        "Social Video": {
+            "VCR": 0.60
+        },
+        "Pinterest Display": {
+            "CPA": 0.33
+        },
+        "Pinterest Video": "N/A",
+        "TikTok": {
+            "CPCV": 0.15
+        },
+        "Search": {
+            "CPC": 2.75
+        },
+        "Audio": {
+            "ACR": 0.90
+        }
+    },
+    "Buick": {
+        "FEP": {
+            "VCR": 0.90
+        },
+        "YouTube": {
+            "GEN": {
+                "CPCV": 0.02
+            },
+            "HIS": {
+                "CPCV": 0.02
+            },
+            "ASN": {
+                "CPCV": 0.02
+            }
+        },
+        "PreRoll": {
+            "VCR": 0.66
+        },
+        "BT Display": {
+            "CPA": {
+                "2024-01-01": 0.20,
+                "2025-02-01": 0.40,
+                "2025-04-01": 0.28
+            }
+        },
+        "Consideration Display": {
+            "CPA": 0.40
+        },
+        "Retargeting Display": {
+            "CPA": {
+                "2024-01-01": 0.11,
+                "2025-02-01": 0.08
+            }
+        },
+        "Meta Display": {
+            "GEN": {
+                "CPA": 0.49
+            },
+            "HIS": {
+                "CPA": 0.77
+            }
+        },
+        "Meta Video": {
+            "VCR": 0.64
+        },
+        "Social Video": {
+            "VCR": 0.64
+        },
+        "Pinterest Display": {
+            "CPA": 0.23
+        },
+        "Pinterest Video": "N/A",
+        "TikTok": {
+            "CPCV": 0.10
+        },
+        "Search": {
+            "CPC": 3.18
+        },
+        "Audio": {
+            "ACR": 0.90
+        }
+    },
+    "Chevrolet": {
+        "FEP": {
+            "VCR": 0.90
+        },
+        "YouTube": {
+            "GEN": {
+                "CPCV": 0.025
+            },
+            "HIS": {
+                "CPCV": 0.035
+            },
+            "ASN": {
+                "CPCV": 0.025
+            }
+        },
+        "PreRoll": {
+            "VCR": 0.66
+        },
+        "BT Display": {
+            "CPA": 0.12
+        },
+        "Consideration Display": "TBD",
+        "Retargeting Display": {
+            "CPA": 0.12
+        },
+        "Meta Display": {
+            "GEN": {
+                "CPA": 0.60
+            },
+            "HIS": {
+                "CPA": 1.24
+            }
+        },
+        "Meta Video": {
+            "VCR": 0.53
+        },
+        "Social Video": {
+            "VCR": 0.53
+        },
+        "Pinterest Display": {
+            "CPA": 0.17
+        },
+        "Pinterest Video": "N/A",
+        "TikTok": "N/A",
+        "Search": "N/A",
+        "Audio": {
+            "ACR": 0.90
+        }
+    },
+    "Cadillac": {
+        "FEP": {
+            "VCR": 0.90
+        },
+        "YouTube": {
+            "GEN": {
+                "CPCV": 0.02
+            },
+            "HIS": {
+                "CPCV": 0.02
+            },
+            "ASN": {
+                "CPCV": 0.02
+            }
+        },
+        "PreRoll": {
+            "VCR": 0.66
+        },
+        "BT Display": {
+            "CPA": {
+                "2024-01-01": 0.78,
+                "2025-02-01": 0.90,
+                "2025-04-01": 0.71
+            }
+        },
+        "Consideration Display": {
+            "CPA": 1.05
+        },
+        "Retargeting Display": {
+            "CPA": {
+                "2024-01-01": 0.78,
+                "2025-02-01": 0.08,
+                "2025-04-01": 0.11
+            }
+        },
+        "Meta Display": {
+            "GEN": {
+                "CPA": 0.73
+            },
+            "HIS": {
+                "CPA": 1.30
+            }
+        },
+        "Meta Video": {
+            "VCR": 0.63
+        },
+        "Social Video": {
+            "VCR": 0.63
+        },
+        "Pinterest Display": {
+            "CPA": 0.75
+        },
+        "Pinterest Video": "N/A",
+        "TikTok": "N/A",
+        "Search": {
+            "CPC": 5.00
+        },
+        "Audio": {
+            "ACR": 0.90
+        }
+    }
+}

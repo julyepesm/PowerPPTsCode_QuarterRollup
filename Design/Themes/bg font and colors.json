@@ -1,0 +1,15 @@
+{
+  "name": "BG Theme",
+  "dataColors": [
+    "#FE5000",
+    "#AA0000",
+    "#000000",
+    "#FFFFFF",
+    "#EBEBEB"
+  ],
+  "textClasses": {
+    "label": { "fontFace": "Segoe UI Light" },
+    "title": { "fontFace": "Segoe UI  Light" },
+    "callout": { "fontFace": "Segoe UI  Light" }
+  }
+}

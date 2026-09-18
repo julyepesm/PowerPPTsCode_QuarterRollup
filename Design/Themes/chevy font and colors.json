@@ -1,0 +1,31 @@
+{
+    "name":"Chevy Theme",
+    "dataColors":[
+        "#0077D9",
+        "#F2BC18",
+        "#F16522",
+        "#DED5C5",
+        "#EA212B",
+        "#393839",
+        "#0099FF",
+        "#950506",
+        "#0E4180",
+        "#A9C5AD",
+        "#F1F1F1"
+        ],
+    "textClasses":
+        {
+            "label": {
+                "fontFace":"Chevy Sans Light",
+                "color": "#393839"
+            },
+            "title":{
+                "fontFace":"Chevy Sans Light",
+            "color": "#393839"
+            },
+            "callout":{
+                "fontFace":"Chevy Sans Light",
+                "color": "#393839"
+            }
+        }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "GMC Theme",
+  "dataColors": [
+    "#AA0000",
+    "#EBEBEB",
+    "#000000",
+    "#55565A"
+  ],
+  "textClasses": {
+    "label": { "fontFace": "StratumGMC Light" },
+    "title": { "fontFace": "StratumGMC Light" },
+    "callout": { "fontFace": "StratumGMC Light" }
+  }
+}
