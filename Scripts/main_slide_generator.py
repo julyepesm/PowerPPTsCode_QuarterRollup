@@ -1778,19 +1778,25 @@ def process_buick_gmc_quarter_rollup(start_month_year="2026-06-01",
         return {"errors": 1, "details": [{"Status": "Failed", "Error": "Market catalog is empty"}]}
 
     column_aliases = {
-        "Brand": "Brand",
-        "Type": "ZoneLMA",
-        "Market": "MarketName",
-        "Code": "MarketCode",
-        "Client": "ClientCode",
+        "Brand": generator._find_column(catalog, "Brand"),
+        "Type": generator._find_column(catalog, "ZoneLMA"),
+        "Market": generator._find_column(catalog, "MarketName"),
+        "Code": generator._find_column(catalog, "MarketCode"),
+        "Client": generator._find_column(catalog, "ClientCode"),
     }
-    missing_columns = [name for name in column_aliases.values() if name not in catalog.columns]
+    missing_columns = [key for key, value in column_aliases.items() if value is None]
     if missing_columns:
         return {
             "errors": 1,
             "expected_decks": len(BUICK_GMC_ROLLUP_MARKET_CODES) * 2,
             "successful_decks": 0,
-            "details": [{"Status": "Failed", "Error": f"Catalog columns missing: {missing_columns}"}],
+            "details": [{
+                "Status": "Failed",
+                "Error": (
+                    f"Catalog columns missing: {missing_columns}. "
+                    f"Returned columns: {list(catalog.columns)}"
+                ),
+            }],
             "output_folder": batch_output_dir,
         }
 
