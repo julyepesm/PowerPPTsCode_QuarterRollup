@@ -51,7 +51,8 @@ market in the regular app. Start it from the repository root with:
 python -m streamlit run Scripts/rollup_ui.py
 ```
 
-Alternatively, run `Button_Rollup.bat` from Windows. In the dedicated screen,
+Alternatively, run `Button_Rollup.bat` from Windows. Keep the terminal window
+open while using the UI. In the dedicated screen,
 leave the dates as June 1, 2026 through August 1, 2026 and click
 **GENERATE 22 ROLLUP DECKS**.
 
