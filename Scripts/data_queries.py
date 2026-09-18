@@ -10,7 +10,15 @@ class DataQueries:
         # PRIORITIZE MARKET CODE: If we have a code, use it. Match against Name only as secondary/relaxed if no code.
         # This solves the "multiple names for same code" issue.
         if market_code and market_code != "XXXXX":
-            filters.append(f"'PoP Master Table'[Market Code] = \"{market_code}\"")
+            if isinstance(market_code, (list, tuple, set)):
+                code_parts = [
+                    f"'PoP Master Table'[Market Code] = \"{code}\""
+                    for code in market_code
+                ]
+                if code_parts:
+                    filters.append("(" + " || ".join(code_parts) + ")")
+            else:
+                filters.append(f"'PoP Master Table'[Market Code] = \"{market_code}\"")
         elif market_name:
             if strict:
                 filters.append(f"'PoP Master Table'[Market Name] = \"{market_name}\"")

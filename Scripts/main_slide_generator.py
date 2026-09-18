@@ -1628,6 +1628,10 @@ class SlideGenerationOrchestrator:
             full_month_year = str(month_year)[:7]
         
         suffix = " Summary" if summary_only else ""
+        filename_market_code = (
+            market_code[0] if isinstance(market_code, (list, tuple, set)) and market_code
+            else market_code
+        )
         
         # --- LOGICA DE MARCACION CON PREFIJO INTELIGENTE DE LA UI ---
         if zone_lma_type == "LMA":
@@ -1638,7 +1642,7 @@ class SlideGenerationOrchestrator:
             
         else:
             # Regla ZONE: Usa el market_code y un orden diferente
-            filename = f"{market_code}-{full_month_year} {brand} Zone Reporting{suffix}.pptx"
+            filename = f"{filename_market_code}-{full_month_year} {brand} Zone Reporting{suffix}.pptx"
         # ------------------------------------------------------------
         
         filepath = os.path.join(folder_path, filename)
@@ -1809,13 +1813,26 @@ def process_buick_gmc_quarter_rollup(start_month_year="2026-06-01",
 
     for brand in ("Buick", "GMC"):
         brand_rows = catalog[
-            (catalog[brand_col].astype(str).str.strip().str.lower() == brand.lower()) &
-            catalog[code_col].astype(str).str.strip().isin(BUICK_GMC_ROLLUP_MARKET_CODES)
-        ]
+            catalog[brand_col].astype(str).str.strip().str.lower() == brand.lower()
+        ].copy()
+        brand_rows["_MarketCodeClean"] = brand_rows[code_col].map(
+            lambda value: str(value).strip().upper()
+        )
 
-        for market_code_value, market_rows in brand_rows.groupby(code_col, sort=False):
+        for requested_code in BUICK_GMC_ROLLUP_MARKET_CODES:
+            market_rows = brand_rows[
+                (brand_rows["_MarketCodeClean"] == requested_code) |
+                brand_rows["_MarketCodeClean"].str.startswith(f"{requested_code}-")
+            ]
+            if market_rows.empty:
+                continue
+
             row = market_rows.iloc[0]
-            market_code = str(market_code_value).strip()
+            market_codes = [
+                str(value).strip() for value in market_rows[code_col].dropna().unique()
+                if str(value).strip() and str(value).strip().lower() != "nan"
+            ]
+            market_code = market_codes[0] if len(market_codes) == 1 else market_codes
             client_codes = []
             if client_col:
                 client_codes = [
@@ -1838,7 +1855,7 @@ def process_buick_gmc_quarter_rollup(start_month_year="2026-06-01",
             )
             details.append({
                 "Brand": brand,
-                "Market Code": market_code,
+                "Market Code": requested_code,
                 "Status": "Success" if result else "Failed"
             })
 
