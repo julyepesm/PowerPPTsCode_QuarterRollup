@@ -1758,26 +1758,47 @@ def process_buick_gmc_quarter_rollup(start_month_year="2026-06-01",
 
     catalog_query = """
     EVALUATE
-    SUMMARIZECOLUMNS(
-        'PoP Master Table'[Brand (Reporting)],
-        'PoP Master Table'[Zone/LMA],
-        'PoP Master Table'[Market Name],
-        'PoP Master Table'[Market Code],
-        'PoP Master Table'[Client Code]
+    SELECTCOLUMNS(
+        SUMMARIZECOLUMNS(
+            'PoP Master Table'[Brand (Reporting)],
+            'PoP Master Table'[Zone/LMA],
+            'PoP Master Table'[Market Name],
+            'PoP Master Table'[Market Code],
+            'PoP Master Table'[Client Code]
+        ),
+        "Brand", 'PoP Master Table'[Brand (Reporting)],
+        "ZoneLMA", 'PoP Master Table'[Zone/LMA],
+        "MarketName", 'PoP Master Table'[Market Name],
+        "MarketCode", 'PoP Master Table'[Market Code],
+        "ClientCode", 'PoP Master Table'[Client Code]
     )
     """
     catalog = generator.powerbi.execute_dax_query(catalog_query)
     if catalog is None or catalog.empty:
         return {"errors": 1, "details": [{"Status": "Failed", "Error": "Market catalog is empty"}]}
 
-    def column(name):
-        return generator._find_column(catalog, name)
+    column_aliases = {
+        "Brand": "Brand",
+        "Type": "ZoneLMA",
+        "Market": "MarketName",
+        "Code": "MarketCode",
+        "Client": "ClientCode",
+    }
+    missing_columns = [name for name in column_aliases.values() if name not in catalog.columns]
+    if missing_columns:
+        return {
+            "errors": 1,
+            "expected_decks": len(BUICK_GMC_ROLLUP_MARKET_CODES) * 2,
+            "successful_decks": 0,
+            "details": [{"Status": "Failed", "Error": f"Catalog columns missing: {missing_columns}"}],
+            "output_folder": batch_output_dir,
+        }
 
-    brand_col = column("Brand (Reporting)")
-    type_col = column("Zone/LMA")
-    market_col = column("Market Name")
-    code_col = column("Market Code")
-    client_col = column("Client Code")
+    brand_col = column_aliases["Brand"]
+    type_col = column_aliases["Type"]
+    market_col = column_aliases["Market"]
+    code_col = column_aliases["Code"]
+    client_col = column_aliases["Client"]
     details = []
 
     for brand in ("Buick", "GMC"):
@@ -1817,6 +1838,15 @@ def process_buick_gmc_quarter_rollup(start_month_year="2026-06-01",
 
     expected = len(BUICK_GMC_ROLLUP_MARKET_CODES) * 2
     successful = sum(item["Status"] == "Success" for item in details)
+    if not details:
+        details.append({
+            "Status": "Failed",
+            "Error": (
+                "Power BI returned no Buick/GMC rows for the configured market codes. "
+                f"Returned catalog rows: {len(catalog)}. Expected codes: "
+                f"{', '.join(BUICK_GMC_ROLLUP_MARKET_CODES)}"
+            ),
+        })
     return {
         "errors": expected - successful,
         "expected_decks": expected,
